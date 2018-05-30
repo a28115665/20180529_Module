@@ -12,7 +12,7 @@
 		"user": "sa",
 		"password": "2j/ z/ !@#$%",
 		"server": "127.0.0.1",
-		"database": "EWS20180314",
+		"database": "LJS",
 		"pool": {
 	        "max": 50,
 	        "min": 0,
@@ -35,6 +35,6 @@
 		"timer" : 120000
 	},
 	"GMail" : {
-		"account" : "a28115665@gmail.com"
+		"account" : ""
 	}
 }
