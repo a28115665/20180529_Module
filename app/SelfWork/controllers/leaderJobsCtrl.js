@@ -377,7 +377,7 @@ angular.module('app.selfwork').controller('LeaderJobsCtrl', function ($scope, $s
                         SPA_AUTOPRIN : $vm.parmData['SPA_AUTOPRIN']
                     },
                     condition: {
-                        SPA_KEY : 'eastwind168'
+                        SPA_KEY : 'leja168'
                     }
                 }).then(function (res) {
                     

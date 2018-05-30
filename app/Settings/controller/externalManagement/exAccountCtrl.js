@@ -24,7 +24,7 @@ angular.module('app.settings').controller('ExAccountCtrl', function ($scope, $st
         compyData : compy,
         ForgetPW : function(){
 
-            var _defaultPass = "Eastwind@168";
+            var _defaultPass = "Leja@168";
 
             var modalInstance = $uibModal.open({
                 animation: true,

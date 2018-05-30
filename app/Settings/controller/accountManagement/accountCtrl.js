@@ -29,7 +29,7 @@ angular.module('app.settings').controller('AccountCtrl', function ($scope, $stat
         gradeData : userGrade,
         ForgetPW : function(){
 
-            var _defaultPass = "Eastwind@168";
+            var _defaultPass = "Leja@168";
 
             var modalInstance = $uibModal.open({
                 animation: true,
