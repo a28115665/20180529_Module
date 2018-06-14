@@ -1035,13 +1035,13 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     };
 
                 switch(selectedItem){
-                    // 關貿格式(G1)
+                    // 汎宇格式(G1)
                     case "0G1":
                         _templates = "0";
                         _queryname = "SelectItemListForEx0";
                         _params["IL_G1"] = "'G1'";
                         break;
-                    // 關貿格式(X2)
+                    // 汎宇格式(X2)
                     case "0X2":
                         _templates = "0";
                         _queryname = "SelectItemListForEx0";
@@ -1049,13 +1049,13 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                         // 不包含併X3(也就是mergeno是null)
                         _params["IL_MERGENO"] = null;
                         break;
-                    // 關貿格式(X3)
+                    // 汎宇格式(X3)
                     case "0X3":
                         _templates = "0";
                         _queryname = "SelectItemListForEx0";
                         _params["IL_G1"] = "'X3'";
                         break;
-                    // 關貿格式(併X3)
+                    // 汎宇格式(併X3)
                     case "0MX3":
                         _templates = "10";
                         _queryname = "SelectItemListForEx0MX3";
