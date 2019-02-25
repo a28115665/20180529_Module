@@ -482,7 +482,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     } 
                 },
                 { name: 'IL_TAX2'       , displayName: '稅則', width: 100, headerCellClass: 'text-primary' },
-                { name: 'ChangeNature'  , displayName: '改單', width: 50, enableCellEdit: false, enableSorting:false, cellTemplate: $templateCache.get('accessibilityToChangeNature'), cellClass: 'cell-class-no-style' },
+                // { name: 'ChangeNature'  , displayName: '改單', width: 50, enableCellEdit: false, enableSorting:false, cellTemplate: $templateCache.get('accessibilityToChangeNature'), cellClass: 'cell-class-no-style' },
                 { name: 'IL_CTN'        , displayName: '件數', width: 50, headerCellClass: 'text-primary' },
                 { name: 'IL_PLACE'      , displayName: '產地', width: 50, enableCellEdit: false },
                 { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 70, headerCellClass: 'text-primary' },
@@ -1028,7 +1028,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     _queryname = null,
                     _params = {
                         OL_MASTER : $vm.vmData.OL_MASTER,
-                        OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd'),
+                        OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy/MM/dd'),
                         OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
                         OL_COUNTRY : $vm.vmData.OL_COUNTRY,                
                         IL_SEQ : $vm.vmData.OL_SEQ

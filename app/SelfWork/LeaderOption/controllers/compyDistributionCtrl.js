@@ -6,8 +6,14 @@ angular.module('app.selfwork.leaderoption').controller('CompyDistributionCtrl', 
 
 	angular.extend(this, {
         Init : function(){
-            $vm.selectAssignDept = userInfoByGrade[0][0].value;
-            LoadCompyDistribution();
+            console.log(userInfoByGrade);
+            // if(userInfoByGrade[0].length == 0){
+            //     toaster.pop('info', '訊息', '請先設定行家分配', 3000);
+            //     $vm.vmData = [];
+            // }else{
+                $vm.selectAssignDept = userInfoByGrade[0][0].value;
+                LoadCompyDistribution();
+            // }
         },
         profile : Session.Get(),
         assignGradeData : userInfoByGrade[0],

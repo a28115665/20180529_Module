@@ -6,9 +6,14 @@ angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', functio
 
 	angular.extend(this, {
         Init : function(){
-            $vm.selectAssignDept = userInfoByGrade[0][0].value;
-            $vm.isLeave = bool[0].value;
-            LoadDailyLeave();
+            if(userInfoByGrade[0].length == 0){
+                toaster.pop('info', '訊息', '請先設定群組', 3000);
+                $vm.vmData = [];
+            }else{
+                $vm.selectAssignDept = userInfoByGrade[0][0].value;
+                $vm.isLeave = bool[0].value;
+                LoadDailyLeave();
+            }
         },
         profile : Session.Get(),
         assignGradeData : userInfoByGrade[0],

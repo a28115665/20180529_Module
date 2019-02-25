@@ -141,7 +141,8 @@ module.exports = function(pQueryname, pParams){
 
 
 		case "SelectItemListForEx0MX3":
-			_SQLCommand += "SELECT * \
+			_SQLCommand += "SELECT ROW_NUMBER() OVER(ORDER BY IL_MERGENO) AS 'ROW_NUMBER',\
+									* \
 							FROM ( \
 								SELECT BLFO_TRACK, \
 										CASE WHEN PG_SEQ IS NULL THEN 0 ELSE 1 END AS 'PG_PULLGOODS', \
@@ -221,7 +222,8 @@ module.exports = function(pQueryname, pParams){
 			break;
 
 		case "SelectItemListForEx0":
-			_SQLCommand += "SELECT BLFO_TRACK, \
+			_SQLCommand += "SELECT ROW_NUMBER() OVER(ORDER BY IL_BAGNO) AS 'ROW_NUMBER',\
+									BLFO_TRACK, \
 									CASE WHEN PG_SEQ IS NULL THEN 0 ELSE 1 END AS 'PG_PULLGOODS', \
 									CASE WHEN SPG_SEQ IS NULL OR SPG_TYPE IS NULL THEN NULL ELSE \
 										CASE WHEN SPG_TYPE = 1 THEN '普特貨'\

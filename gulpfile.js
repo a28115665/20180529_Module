@@ -54,9 +54,10 @@ var destinations = {
 
 gulp.task('build', function(){
     return es.merge(gulp.src(source.js.src) , getTemplateStream())
-         .pipe(ngAnnotate())
-         .pipe(uglify())
         .pipe(concat('app.js'))
+        .pipe(ngAnnotate())
+        .pipe(stripDebug())
+        // .pipe(uglify())
         .pipe(gulp.dest(destinations.js));
 });
 
@@ -103,8 +104,14 @@ gulp.task('move-public', ['clean', 'version'], function(e){
 
     gulp.src('api/**/*.*').pipe(gulp.dest(destinations['public'] + '/api'));
     gulp.src('app/**/' + source.js.html).pipe(gulp.dest(destinations['public'] + '/app'));
-    // 拿掉console
-    gulp.src('build/**/*.*').pipe(stripDebug()).pipe(gulp.dest(destinations['public'] + '/build'));
+
+    // 處理主要的js檔
+    gulp.src('build/**/*.*')
+        .pipe(ngAnnotate())
+        .pipe(stripDebug())
+        .pipe(uglify())
+        .pipe(gulp.dest(destinations['public'] + '/build'));
+
     gulp.src('sound/**/*.*').pipe(gulp.dest(destinations['public'] + '/sound'));
     gulp.src('styles/**/*.*').pipe(gulp.dest(destinations['public'] + '/styles'));
 
@@ -115,6 +122,14 @@ gulp.task('move-public', ['clean', 'version'], function(e){
     .pipe(gulpHtmlVersion(version))
     .pipe(gulp.dest(destinations['public']));
 });
+
+// gulp.task('test', function(){
+//     return gulp.src('build/**/*.*')
+//         .pipe(ngAnnotate())
+//         .pipe(stripDebug())
+//         .pipe(uglify())
+//         .pipe(gulp.dest(destinations['public'] + '/build'));
+// });
 
 gulp.task('watch', function(){
     gulp.watch(source.js.src, ['m-js']);
