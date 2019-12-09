@@ -141,9 +141,8 @@ module.exports = function(pQueryname, pParams){
 
 
 		case "SelectItemListForEx0MX3":
-			_SQLCommand += "SELECT *, \
-									@CO_NAME AS 'CO_NAME', \
-									IL_UNIVALENT_NEW * IL_NEWPCS_NOREPEAT AS 'IL_FINALCOST_NOREPEAT' \
+			_SQLCommand += "SELECT ROW_NUMBER() OVER(ORDER BY IL_MERGENO) AS 'ROW_NUMBER',\
+									* \
 							FROM ( \
 								SELECT BLFO_TRACK, \
 										CASE WHEN PG_SEQ IS NULL THEN 0 ELSE 1 END AS 'PG_PULLGOODS', \
@@ -223,7 +222,8 @@ module.exports = function(pQueryname, pParams){
 			break;
 
 		case "SelectItemListForEx0":
-			_SQLCommand += "SELECT BLFO_TRACK, \
+			_SQLCommand += "SELECT ROW_NUMBER() OVER(ORDER BY IL_BAGNO) AS 'ROW_NUMBER',\
+									BLFO_TRACK, \
 									CASE WHEN PG_SEQ IS NULL THEN 0 ELSE 1 END AS 'PG_PULLGOODS', \
 									CASE WHEN SPG_SEQ IS NULL OR SPG_TYPE IS NULL THEN NULL ELSE \
 										CASE WHEN SPG_TYPE = 1 THEN '普特貨'\
@@ -231,11 +231,6 @@ module.exports = function(pQueryname, pParams){
 									END AS 'SPG_SPECIALGOODS', \
 									PG_MOVED, \
 									ITEM_LIST.*, \
-									REPLACE(( \
-										CASE WHEN LEFT(IL_GETTEL, 3) = '886' THEN '0' + SUBSTRING(IL_GETTEL, 4, LEN(IL_GETTEL)) \
-										WHEN LEN(IL_GETTEL) = 9 THEN '0' + IL_GETTEL \
-										ELSE IL_GETTEL END \
-									), '-', '') AS IL_GETTEL_EX, \
 									CASE WHEN ROW_NUMBER() OVER(PARTITION BY IL_BAGNO ORDER BY IL_BAGNO) = 1 \
 									THEN IL_BAGNO ELSE NULL END AS 'IL_BAGNOEX_NOREPEAT' \
 							FROM ITEM_LIST \
@@ -276,67 +271,6 @@ module.exports = function(pQueryname, pParams){
 
 			_SQLCommand += " ORDER BY IL_BAGNO ";
 		
-			break;
-
-		case "SelectItemListForEx12":
-			_SQLCommand += "SELECT BLFO_TRACK,  \
-									CASE WHEN PG_SEQ IS NULL THEN 0 ELSE 1 END AS 'PG_PULLGOODS', \
-									CASE WHEN SPG_SEQ IS NULL OR SPG_TYPE IS NULL THEN NULL ELSE \
-										CASE WHEN SPG_TYPE = 1 THEN '普特貨'\
-										ELSE '特特貨' END \
-									END AS 'SPG_SPECIALGOODS', \
-									PG_MOVED, \
-									CASE WHEN ITEM_LIST.IL_G1 = 'Y' THEN '' ELSE ITEM_LIST.IL_G1 END AS 'IL_G1_X2', \
-									CASE WHEN ITEM_LIST.IL_G1 = 'Y' THEN 'Y' ELSE '' END AS 'IL_G1_ONLY_Y', \
-									CASE WHEN ITEM_LIST.IL_G1 = 'Y' THEN '" + pParams["OL_CO_NAME"] + "' ELSE IL_NEWSENDNAME END AS 'IL_NEWSENDNAME_X2', \
-									CASE WHEN ITEM_LIST.IL_G1 = 'Y' THEN IL_GETNO ELSE IL_EXNO END AS 'IL_GETNO_X2', \
-									CASE WHEN ITEM_LIST.IL_WEIGHT_NEW < 0.1 THEN '0.1' ELSE ITEM_LIST.IL_WEIGHT_NEW END AS 'IL_WEIGHT_NEW_X2',\
-									ITEM_LIST.*, \
-									REPLACE(( \
-										CASE WHEN LEFT(IL_GETTEL, 3) = '886' THEN '0' + SUBSTRING(IL_GETTEL, 4, LEN(IL_GETTEL)) \
-										WHEN LEN(IL_GETTEL) = 9 THEN '0' + IL_GETTEL \
-										ELSE IL_GETTEL END \
-									), '-', '') AS IL_GETTEL_EX, \
-									CASE WHEN ROW_NUMBER() OVER(PARTITION BY IL_BAGNO ORDER BY IL_BAGNO) = 1 \
-									THEN IL_BAGNO ELSE NULL END AS 'IL_BAGNOEX_NOREPEAT' \
-							FROM ITEM_LIST \
-							LEFT JOIN BLACK_LIST_FROM_OP ON \
-							IL_SEQ = BLFO_SEQ AND \
-							IL_NEWBAGNO = BLFO_NEWBAGNO AND \
-							IL_NEWSMALLNO = BLFO_NEWSMALLNO AND \
-							IL_ORDERINDEX = BLFO_ORDERINDEX \
-							LEFT JOIN PULL_GOODS ON \
-							IL_SEQ = PG_SEQ AND \
-							IL_BAGNO = PG_BAGNO \
-							LEFT JOIN SPECIAL_GOODS ON \
-							IL_SEQ = SPG_SEQ AND \
-							IL_NEWBAGNO = SPG_NEWBAGNO AND \
-							IL_NEWSMALLNO = SPG_NEWSMALLNO AND \
-							IL_ORDERINDEX = SPG_ORDERINDEX \
-							WHERE 1=1 \
-							/*拉貨不匯出*/ \
-							AND PG_SEQ IS NULL ";
-			
-			if(pParams["IL_G1"] !== undefined){
-				_SQLCommand += " AND IL_G1 IN ("+pParams["IL_G1"]+")";
-				delete pParams["IL_G1"];
-			}
-			
-			if(pParams["IL_MERGENO"] !== undefined && pParams["IL_MERGENO"] == null){
-				_SQLCommand += " AND IL_MERGENO IS NULL";
-			}
-
-			if(pParams["IL_SEQ"] !== undefined){
-				_SQLCommand += " AND IL_SEQ = @IL_SEQ";
-			}
-							
-			if(pParams["NewSmallNo"] !== undefined){
-				_SQLCommand += " AND IL_NEWSMALLNO IN ("+pParams["NewSmallNo"]+") ";
-				delete pParams["NewSmallNo"];
-			}
-
-			_SQLCommand += " ORDER BY IL_BAGNO ";
-
 			break;
 
 		case "SelectItemListForEx8":
