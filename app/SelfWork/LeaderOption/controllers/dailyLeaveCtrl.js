@@ -6,8 +6,9 @@ angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', functio
 
 	angular.extend(this, {
         Init : function(){
+            // 檢查是否有部門人員
             if(userInfoByGrade[0].length == 0){
-                toaster.pop('info', '訊息', '請先設定群組', 3000);
+                toaster.pop('info', '訊息', '請先設定帳號所屬的部門', 3000);
                 $vm.vmData = [];
             }else{
                 $vm.selectAssignDept = userInfoByGrade[0][0].value;
@@ -138,7 +139,7 @@ angular.module('app.selfwork.leaderoption').controller('DailyLeaveCtrl', functio
             RestfulApi.CRUDMSSQLDataByTask(_tasks).then(function (res){
                 promise.resolve();
             }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                toaster.pop('error', '錯誤', '更新失敗', 3000);
                 promise.reject();
             }).finally(function(){
                 if($vm.dailyLeaveGridApi.rowEdit.getDirtyRows().length == 0){

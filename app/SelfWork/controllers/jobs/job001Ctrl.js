@@ -142,7 +142,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                                 toaster.pop('success', '訊息', '加入黑名單成功', 3000);
                             }
                         }, function (err) {
-                            toaster.pop('danger', '錯誤', '加入黑名單失敗', 3000);
+                            toaster.pop('error', '錯誤', '加入黑名單失敗', 3000);
                         }).finally(function(){
                             $vm.job001GridApi.selection.clearSelectedRows();
                             ClearSelectedColumn();
@@ -249,7 +249,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                                 toaster.pop('success', '訊息', '刪除資料成功', 3000);
                             }
                         }, function (err) {
-                            toaster.pop('danger', '錯誤', '刪除資料失敗', 3000);
+                            toaster.pop('error', '錯誤', '刪除資料失敗', 3000);
                         }).finally(function(){
                             $vm.job001GridApi.selection.clearSelectedRows();
                             // ClearSelectedColumn();
@@ -272,6 +272,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     templateUrl: 'pullGoodsModalContent.html',
                     controller: 'PullGoodsModalInstanceCtrl',
                     controllerAs: '$ctrl',
+                    backdrop: 'static',
                     // size: 'lg',
                     // appendTo: parentElem,
                     resolve: {
@@ -389,6 +390,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     controller: 'SpecialGoodsModalInstanceCtrl',
                     controllerAs: '$ctrl',
                     size: 'sm',
+                    backdrop: 'static',
                     // appendTo: parentElem,
                     resolve: {
                         items: function() {
@@ -482,7 +484,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     } 
                 },
                 { name: 'IL_TAX2'       , displayName: '稅則', width: 100, headerCellClass: 'text-primary' },
-                // { name: 'ChangeNature'  , displayName: '改單', width: 50, enableCellEdit: false, enableSorting:false, cellTemplate: $templateCache.get('accessibilityToChangeNature'), cellClass: 'cell-class-no-style' },
+                { name: 'ChangeNature'  , displayName: '改單', width: 50, enableCellEdit: false, enableSorting:false, cellTemplate: $templateCache.get('accessibilityToChangeNature'), cellClass: 'cell-class-no-style' },
                 { name: 'IL_CTN'        , displayName: '件數', width: 50, headerCellClass: 'text-primary' },
                 { name: 'IL_PLACE'      , displayName: '產地', width: 50, enableCellEdit: false },
                 { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 70, headerCellClass: 'text-primary' },
@@ -592,107 +594,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
 
                 gridApi.rowEdit.on.saveRow($scope, $vm.Update);
 
-                gridApi.edit.on.afterCellEdit($scope, function(rowEntity, colDef, newValue, oldValue){
-
-                    if(colDef.name == 'IL_GETNAME_NEW'){
-                        var _temp = encodeURI(rowEntity.IL_GETNAME_NEW),
-                            regex = /%09/gi;
-
-                        _temp = _temp.replace(regex, "%20");
-                        rowEntity.IL_GETNAME_NEW = decodeURI(_temp);
-                    }
-
-                    // 新單價 = 新重量 * 100 / 新數量
-                    if(colDef.name == 'IL_WEIGHT_NEW' || colDef.name == 'IL_NEWPCS'){
-                        var _weight = parseFloat(rowEntity.IL_WEIGHT_NEW).toFixed(2),
-                            _pcs = parseInt(rowEntity.IL_NEWPCS);
-
-                        // 如果都不是空值 才開始計算
-                        if(!isNaN(_weight) && !isNaN(_pcs)){
-                            // 如果數量不為0
-                            if(parseInt(_pcs) != 0){
-                                rowEntity.IL_UNIVALENT_NEW = (_weight * 100) / _pcs;
-                            }else{
-                                rowEntity.IL_UNIVALENT_NEW = 0;
-                            }
-                        }
-                    }
-
-                    // 計算稅
-                    var _univalent = parseInt(rowEntity.IL_UNIVALENT_NEW),
-                        _pcs = parseInt(rowEntity.IL_NEWPCS),
-                        _finalcost = parseInt(rowEntity.IL_FINALCOST),
-                        start = 0;
-
-                    if(!isNaN(_univalent)){
-                        start += 1;
-                    }
-                    if(!isNaN(_pcs)){
-                        start += 1;
-                    }
-                    if(!isNaN(_finalcost)){
-                        start += 1;
-                    }
-
-                    // 表示可以開始計算
-                    if(start >= 2){
-                        // 新單價
-                        if(colDef.name == 'IL_UNIVALENT_NEW'){
-                            //如果數量有值
-                            if(!isNaN(_pcs)){
-                                _finalcost = _pcs * _univalent;
-                            }
-                        }
-
-                        // 新數量
-                        if(colDef.name == 'IL_NEWPCS'){
-                            if(!isNaN(_univalent)){
-                                _finalcost = _pcs * _univalent;
-                            }
-                        }
-
-                        // 當完稅價格小於100
-                        if(_finalcost < 100 && _finalcost != 0){
-                            // 給個新值 100~125
-                            var maxNum = 125;  
-                            var minNum = 100;  
-                            _finalcost = Math.floor(Math.random() * (maxNum - minNum + 1)) + minNum; 
-                        }
-
-                        // 當完稅價格超過1500 提醒使用者
-                        if(_finalcost > 1500){
-                            toaster.pop('warning', '警告', '完稅價格超過1500元，請注意', 3000);
-                        }
-                        
-                        // 當數量不為空 帶出單價 (會與新單價衝突)
-                        if(colDef.name == 'IL_FINALCOST' || colDef.name == 'IL_NEWPCS' || colDef.name == 'IL_UNIVALENT_NEW'){
-                            if(!isNaN(_pcs)){
-                                if(parseInt(_pcs) != 0){
-                                    _univalent = Math.round(_finalcost / _pcs);
-                                }else{
-                                    _univalent = 0;
-                                }
-                            }
-                        }
-
-                        // 完稅價格
-                        if(colDef.name == 'IL_FINALCOST' || colDef.name == 'IL_WEIGHT_NEW'){
-                            // 避免帳不平 再次計算完稅價格
-                            if(!isNaN(_pcs) && !isNaN(_univalent)){
-                                _finalcost = _pcs * _univalent;
-                            }
-                        }
-
-                        // console.log("_univalent:", _univalent," _pcs:" , _pcs," _finalcost:" , _finalcost);
-                        rowEntity.IL_UNIVALENT_NEW = isNaN(_univalent) ? null : _univalent;
-                        rowEntity.IL_NEWPCS = isNaN(_pcs) ? null : _pcs;
-                        rowEntity.IL_FINALCOST = isNaN(_finalcost) ? null : _finalcost;
-                    }
-
-                    $vm.job001GridApi.rowEdit.setRowsDirty([rowEntity]);
-
-                    // console.log('edited row id:' + rowEntity.Index + ' Column:' + colDef.name + ' newValue:' + newValue + ' oldValue:' + oldValue);
-                });
+                gridApi.edit.on.afterCellEdit($scope, CalculationFinalCost);
 
                 gridApi.selection.on.rowSelectionChanged($scope, function(rowEntity, colDef, newValue, oldValue){
                     rowEntity.entity["isSelected"] = rowEntity.isSelected;
@@ -705,6 +607,21 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 });
             }
         },
+        // 整理報關種類為Y
+        SortoutG1ForY: function(){
+
+            var _g1ForY = $filter('filter')($vm.job001Data, {IL_G1: 'Y'});
+
+            if(_g1ForY.length > 0){
+
+                for(var i in _g1ForY){
+                    G1ForY(_g1ForY[i]);
+                }
+
+                $vm.job001GridApi.rowEdit.setRowsDirty(_g1ForY);
+            }
+
+        },
         // 併票
         MergeNo: function(){
             if($vm.job001GridApi.selection.getSelectedRows().length == 0) {
@@ -715,13 +632,18 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             // 取得第一個袋號當併票號
             var _mergeNo = $vm.job001GridApi.selection.getSelectedRows()[0].IL_BAGNO,
                 _natureNew = [],
+                _ilTax2 = [],
                 _bagNo = [];
 
             // 塞入新品名
             for(var i in $vm.job001GridApi.selection.getSelectedRows()){
                 // console.log($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW);
-                if($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW != null){
+                if($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW){
                     _natureNew.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_NATURE_NEW);
+                }
+
+                if($vm.job001GridApi.selection.getSelectedRows()[i].IL_TAX2){
+                    _ilTax2.push($vm.job001GridApi.selection.getSelectedRows()[i].IL_TAX2);
                 }
 
                 // 算出袋數 重複不塞入
@@ -737,6 +659,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 templateUrl: 'mergeNoModalContent.html',
                 controller: 'MergeNoModalInstanceCtrl',
                 controllerAs: '$ctrl',
+                backdrop: 'static',
                 // size: 'lg',
                 // appendTo: parentElem,
                 resolve: {
@@ -745,6 +668,9 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     },
                     natureNew: function() {
                         return _natureNew;
+                    },
+                    ilTax2: function() {
+                        return _ilTax2;
                     },
                     bagNo: function(){
                         return _bagNo;
@@ -761,6 +687,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     var _index = $vm.job001GridApi.selection.getSelectedRows()[i].Index;
                     $vm.job001Data[_index-1].IL_MERGENO = selectedItem.mergeNo;
                     $vm.job001Data[_index-1].IL_NATURE_NEW = selectedItem.natureNew;
+                    $vm.job001Data[_index-1].IL_TAX2 = selectedItem.ilTax2;
                 }
 
                 $vm.job001GridApi.rowEdit.setRowsDirty($vm.job001GridApi.selection.getSelectedRows());
@@ -806,6 +733,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 controller: 'MultiSpecialGoodsModalInstanceCtrl',
                 controllerAs: '$ctrl',
                 size: 'sm',
+                backdrop: 'static',
                 // appendTo: parentElem,
                 resolve: {
                     specialGoods: function(SysCode) {
@@ -894,6 +822,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 templateUrl: 'pullGoodsModalContent.html',
                 controller: 'PullGoodsModalInstanceCtrl',
                 controllerAs: '$ctrl',
+                backdrop: 'static',
                 // size: 'lg',
                 // appendTo: parentElem,
                 resolve: {
@@ -1028,7 +957,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     _queryname = null,
                     _params = {
                         OL_MASTER : $vm.vmData.OL_MASTER,
-                        OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy/MM/dd', 'GMT'),
+                        OL_IMPORTDT : $filter('date')($vm.vmData.OL_IMPORTDT, 'yyyy-MM-dd', 'GMT'),
                         OL_FLIGHTNO : $vm.vmData.OL_FLIGHTNO,
                         OL_COUNTRY : $vm.vmData.OL_COUNTRY,                
                         IL_SEQ : $vm.vmData.OL_SEQ
@@ -1384,6 +1313,9 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                                     },
                                     type: function(){
                                         return _type;
+                                    },
+                                    calculationFinalCost: function () {
+                                        return CalculationFinalCost;
                                     }
                                 }
                             });
@@ -1417,6 +1349,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                                             _getDirtyData.push($vm.job001Data[_index]);
                                         }
                                     }
+                                    console.log($vm.job001GridApi);
                                     $vm.job001GridApi.rowEdit.setRowsDirty(_getDirtyData);
                                 }
 
@@ -1529,7 +1462,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                 // console.log(res);
                 deferred.resolve();
             }, function (err) {
-                toaster.pop('danger', '錯誤', '更新失敗', 3000);
+                toaster.pop('error', '錯誤', '更新失敗', 3000);
                 deferred.reject();
             });
             
@@ -1551,6 +1484,143 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
             $vm.job001Data = angular.copy(res["returnData"]);
         }); 
     };
+
+    function CalculationFinalCost(rowEntity, colDef, newValue, oldValue){
+        
+        // 一律為大寫
+        if(colDef.name == 'O_IL_G1') {
+            try {
+                rowEntity["O_IL_G1"] = newValue.toUpperCase();
+            }
+            catch (e) {
+                console.log(e);
+            }
+        }
+
+        try {
+            if(newValue.toUpperCase() == "Y"){
+                G1ForY(rowEntity)
+                // rowEntity.IL_WEIGHT_NEW = rowEntity.IL_WEIGHT;
+                // rowEntity.IL_NEWPCS = rowEntity.IL_PCS;
+                // rowEntity.IL_UNIVALENT_NEW = rowEntity.IL_UNIVALENT;
+                // rowEntity.IL_NEWSENDNAME = rowEntity.IL_SENDNAME;
+                // rowEntity.IL_FINALCOST = null;
+            }
+        } catch (e) {
+            console.log(e);
+        }
+
+        if(colDef.name == 'IL_GETNAME_NEW'){
+            var _temp = encodeURI(rowEntity.IL_GETNAME_NEW),
+                regex = /%09/gi;
+
+            _temp = _temp.replace(regex, "%20");
+            rowEntity.IL_GETNAME_NEW = decodeURI(_temp);
+        }
+
+        // 新單價 = 新重量 * 100 / 新數量
+        if(colDef.name == 'IL_WEIGHT_NEW' || colDef.name == 'IL_NEWPCS'){
+            var _weight = parseFloat(rowEntity.IL_WEIGHT_NEW).toFixed(2),
+                _pcs = parseInt(rowEntity.IL_NEWPCS);
+
+            // 如果都不是空值 才開始計算
+            if(!isNaN(_weight) && !isNaN(_pcs)){
+                // 如果數量不為0
+                if(parseInt(_pcs) != 0){
+                    rowEntity.IL_UNIVALENT_NEW = (_weight * 100) / _pcs;
+                }else{
+                    rowEntity.IL_UNIVALENT_NEW = 0;
+                }
+            }
+        }
+
+        // 計算稅
+        var _univalent = parseInt(rowEntity.IL_UNIVALENT_NEW),
+            _pcs = parseInt(rowEntity.IL_NEWPCS),
+            _finalcost = parseInt(rowEntity.IL_FINALCOST),
+            start = 0;
+
+        if(!isNaN(_univalent)){
+            start += 1;
+        }
+        if(!isNaN(_pcs)){
+            start += 1;
+        }
+        if(!isNaN(_finalcost)){
+            start += 1;
+        }
+
+        // 表示可以開始計算
+        if(start >= 2){
+            // 新單價
+            if(colDef.name == 'IL_UNIVALENT_NEW'){
+                //如果數量有值
+                if(!isNaN(_pcs)){
+                    _finalcost = _pcs * _univalent;
+                }
+            }
+
+            // 新數量
+            if(colDef.name == 'IL_NEWPCS'){
+                if(!isNaN(_univalent)){
+                    _finalcost = _pcs * _univalent;
+                }
+            }
+
+            // 當完稅價格小於100
+            if(_finalcost < 100 && _finalcost != 0){
+                // 給個新值 100~125
+                var maxNum = 125;  
+                var minNum = 100;  
+                _finalcost = Math.floor(Math.random() * (maxNum - minNum + 1)) + minNum; 
+            }
+
+            // 當完稅價格超過2000 提醒使用者
+            if(_finalcost > 2000){
+                toaster.pop('warning', '警告', '完稅價格超過2000元，請注意', 3000);
+            }
+            
+            // 當數量不為空 帶出單價 (會與新單價衝突)
+            if(colDef.name == 'IL_FINALCOST' || colDef.name == 'IL_NEWPCS' || colDef.name == 'IL_UNIVALENT_NEW'){
+                if(!isNaN(_pcs)){
+                    if(parseInt(_pcs) != 0){
+                        _univalent = Math.round(_finalcost / _pcs);
+                    }else{
+                        _univalent = 0;
+                    }
+                }
+            }
+
+            // 完稅價格
+            if(colDef.name == 'IL_FINALCOST' || colDef.name == 'IL_WEIGHT_NEW'){
+                // 避免帳不平 再次計算完稅價格
+                if(!isNaN(_pcs) && !isNaN(_univalent)){
+                    _finalcost = _pcs * _univalent;
+                }
+            }
+
+            // console.log("_univalent:", _univalent," _pcs:" , _pcs," _finalcost:" , _finalcost);
+            rowEntity.IL_UNIVALENT_NEW = isNaN(_univalent) ? null : _univalent;
+            rowEntity.IL_NEWPCS = isNaN(_pcs) ? null : _pcs;
+            rowEntity.IL_FINALCOST = isNaN(_finalcost) ? null : _finalcost;
+        }
+
+        $vm.job001GridApi.rowEdit.setRowsDirty([rowEntity]);
+
+        // console.log('edited row id:' + rowEntity.Index + ' Column:' + colDef.name + ' newValue:' + newValue + ' oldValue:' + oldValue);
+    }
+
+    /**
+     * [G1ForY description] 報關類型為Y的處理方法
+     * @param {[type]} rowEntity [description]
+     */
+    function G1ForY (rowEntity){
+        rowEntity.IL_WEIGHT_NEW = rowEntity.IL_WEIGHT;
+        rowEntity.IL_NEWPCS = rowEntity.IL_PCS;
+        rowEntity.IL_UNIVALENT_NEW = rowEntity.IL_UNIVALENT;
+        rowEntity.IL_NEWSENDNAME = rowEntity.IL_SENDNAME;
+        rowEntity.IL_FINALCOST = null;
+    }
 
     /**
      * [ClearSelectedColumn description] isSelected設為否
@@ -1577,18 +1647,21 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         $uibModalInstance.dismiss('cancel');
     };
 })
-.controller('MergeNoModalInstanceCtrl', function ($uibModalInstance, mergeNo, natureNew, bagNo) {
+.controller('MergeNoModalInstanceCtrl', function ($uibModalInstance, mergeNo, natureNew, ilTax2, bagNo) {
     var $ctrl = this;
     $ctrl.natureNew = natureNew;
+    $ctrl.ilTax2 = ilTax2;
 
     $ctrl.mdData = {
         mergeNo : mergeNo,
         natureNew : null,
+        ilTax2 : null,
         bagNo : bagNo
     };
 
     $ctrl.Init = function(){
-        $ctrl.mergeNoChoice = '1';
+        $ctrl.mergeNoNature = '1';
+        $ctrl.mergeNoIlTax2 = '1';
     };
 
     $ctrl.ok = function() {
@@ -1908,7 +1981,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         $uibModalInstance.dismiss('cancel');
     };
 })
-.controller('OverSixModalInstanceCtrl', function ($uibModalInstance, $q, $scope, $templateCache, overSixData, type) {
+.controller('OverSixModalInstanceCtrl', function ($uibModalInstance, $q, $scope, $templateCache, overSixData, type, calculationFinalCost) {
     var $ctrl = this;
     $ctrl.type = type;
     $ctrl.mdData = overSixData;
@@ -1996,6 +2069,8 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
         rowEditWaitInterval: -1,
         onRegisterApi: function(gridApi){
             $ctrl.overSixGridApi = gridApi;
+
+            gridApi.edit.on.afterCellEdit($scope, calculationFinalCost);
         }
     }
 

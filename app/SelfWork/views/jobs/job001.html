@@ -144,7 +144,7 @@
 				            <a href-void="" class="btn btn-warning" href="#" ng-click="$vm.MergeNoResult()">併票結果</a>
 				        </div>
 				        <div class="widget-toolbar smart-form" role="menu">
-				            <a href-void="" class="btn btn-success" href="#" ng-click="$vm.ExportExcel()">匯出汎宇</a>
+				            <a href-void="" class="btn btn-success" href="#" ng-click="$vm.ExportExcel()">匯出關貿</a>
 				        </div>
 				        <div class="widget-toolbar smart-form" role="menu">
 				            <a href-void="" class="btn btn-success" href="#" ng-click="$vm.ExportAirportSchema()">匯出班機表欄位</a>
@@ -175,13 +175,17 @@
 														<span class="text-primary"> 可編輯欄位</span>
 											        </span>
 							                    </div>
+							                </fieldset>
+							            </form>
+							        	<form class="form-inline" role="form">
+							                <fieldset>
 							                    <div class="form-group">
 											        <label class="control-label">班機表已匯：</label>
 											        <span>
 														<i ng-class="$vm.vmData.FLIGHT_EXPORT >= 1 ? 'fa fa-check text-success' : 'fa fa-remove text-danger'"></i>
 											        </span>
 											        <label class="control-label">｜</label>
-											        <label class="control-label">汎宇已匯：</label>
+											        <label class="control-label">關貿已匯：</label>
 											        <span>
 														<i ng-class="$vm.vmData.TRADE_EXPORT >= 1 ? 'fa fa-check text-success' : 'fa fa-remove text-danger'"></i>
 											        </span>
@@ -192,6 +196,12 @@
 							        <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8 text-right">
 							        	<form class="form-inline" role="form">
 							                <fieldset>
+							                    <div class="form-group">
+										            <button class="btn btn-info"
+										            		ng-click="$vm.SortoutG1ForY()">
+										                報關種類Y
+										            </button>
+							                    </div>
 							                    <div class="form-group">
 										            <button class="btn btn-primary"
 										            		ng-click="$vm.MergeNo()">
@@ -300,7 +310,19 @@
             <button type="button" class="btn btn-info btn-lg btn-block" ng-click="$ctrl.ok('0MX3')"> 
                 汎宇格式 (併X3)
             </button> 
-            <!-- <button type="button" class="btn btn-info btn-lg btn-block" ng-click="$ctrl.ok('8')"> 
+            <!-- <button type="button" class="btn btn-info btn-lg btn-block" ng-click="$ctrl.ok('0G1')"> 
+                關貿格式 (G1)
+            </button> 
+            <button type="button" class="btn btn-info btn-lg btn-block" ng-click="$ctrl.ok('0X2')"> 
+                關貿格式 (X2)
+            </button> 
+            <button type="button" class="btn btn-info btn-lg btn-block" ng-click="$ctrl.ok('0X3')"> 
+                關貿格式 (X3)
+            </button> 
+            <button type="button" class="btn btn-info btn-lg btn-block" ng-click="$ctrl.ok('0MX3')"> 
+                關貿格式 (併X3)
+            </button> 
+            <button type="button" class="btn btn-info btn-lg btn-block" ng-click="$ctrl.ok('8')"> 
                 介宏格式 
             </button>  -->
         </div> 
@@ -355,39 +377,66 @@
 	    <h3 class="modal-title" id="modal-title">併票</h3>
 	</div>
 	<div class="modal-body" id="modal-body">
-	    <form class="form-horizontal">
+	    <form class="form-horizontal" name="form">
 			<fieldset>
 				<div class="form-group">
 			        <label class="col-md-2 control-label">併票號</label>
 			        <div class="col-md-10">
-			            <input class="form-control" ng-model="$ctrl.mdData.mergeNo" type="text">
+			            <input class="form-control" ng-model="$ctrl.mdData.mergeNo" type="text" name="mergeNo" ng-required="true">
 			        </div>
 			    </div>
 			    <div class="form-group">
 			        <label class="col-md-2 control-label">併票號品名</label>
 			        <div class="col-md-10">
 			            <label class="radio radio-inline">
-			                <input type="radio" ng-model="$ctrl.mergeNoChoice" value="1">
+			                <input type="radio" ng-model="$ctrl.mergeNoNature" value="1" name="mergeNoNature" ng-required="true">
 			                選擇 
 			            </label>
 			            <label class="radio radio-inline">
-			                <input type="radio" ng-model="$ctrl.mergeNoChoice" value="2">
+			                <input type="radio" ng-model="$ctrl.mergeNoNature" value="2" name="mergeNoNature" ng-required="true">
 			                自訂 
 			            </label>
 			        </div>
 			    </div>
-				<div class="form-group" ng-show="$ctrl.mergeNoChoice == '1'">
+				<div class="form-group" ng-show="$ctrl.mergeNoNature == '1'">
 			        <label class="col-md-2 control-label">新品名</label>
 			        <div class="col-md-10">
-						<select class="form-control" ng-model="$ctrl.mdData.natureNew" ng-options="data as data for data in $ctrl.natureNew" ng-disabled="$ctrl.natureNew.length == 0">
+						<select class="form-control" name="natureNew" ng-model="$ctrl.mdData.natureNew" ng-options="data as data for data in $ctrl.natureNew" ng-disabled="$ctrl.natureNew.length == 0" ng-required="true">
 							<option value="">-- 請選擇 --</option>
 						</select>
 			        </div>
 			    </div>
-				<div class="form-group" ng-show="$ctrl.mergeNoChoice == '2'">
+				<div class="form-group" ng-show="$ctrl.mergeNoNature == '2'">
 			        <label class="col-md-2 control-label">自訂</label>
 			        <div class="col-md-10">
-			            <input class="form-control" placeholder="請輸入自訂併票號品名" ng-model="$ctrl.mdData.natureNew" type="text">
+			            <input class="form-control" name="natureNew" placeholder="請輸入自訂併票號品名" ng-model="$ctrl.mdData.natureNew" type="text" ng-required="true">
+			        </div>
+			    </div>
+			    <div class="form-group">
+			        <label class="col-md-2 control-label">併票號稅則</label>
+			        <div class="col-md-10">
+			            <label class="radio radio-inline">
+			                <input type="radio" ng-model="$ctrl.mergeNoIlTax2" value="1" name="mergeNoIlTax2" ng-required="true">
+			                選擇 
+			            </label>
+			            <label class="radio radio-inline">
+			                <input type="radio" ng-model="$ctrl.mergeNoIlTax2" value="2" name="mergeNoIlTax2" ng-required="true">
+			                自訂 
+			            </label>
+			        </div>
+			    </div>
+				<div class="form-group" ng-show="$ctrl.mergeNoIlTax2 == '1'">
+			        <label class="col-md-2 control-label">稅則</label>
+			        <div class="col-md-10">
+						<select class="form-control" name="ilTax2" ng-model="$ctrl.mdData.ilTax2" ng-options="data as data for data in $ctrl.ilTax2" ng-disabled="$ctrl.ilTax2.length == 0" ng-required="true">
+							<option value="">-- 請選擇 --</option>
+						</select>
+			        </div>
+			    </div>
+				<div class="form-group" ng-show="$ctrl.mergeNoIlTax2 == '2'">
+			        <label class="col-md-2 control-label">自訂</label>
+			        <div class="col-md-10">
+			            <input class="form-control" name="ilTax2" placeholder="請輸入自訂併票號稅則" ng-model="$ctrl.mdData.ilTax2" type="text" ng-required="true">
 			        </div>
 			    </div>
 				<div class="form-group">
@@ -400,7 +449,7 @@
 	    </form>
 	</div>
 	<div class="modal-footer">
-	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">{{getWord('OK')}}</button>
+	    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!form.$valid">{{getWord('OK')}}</button>
 	    <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{getWord('Cancel')}}</button>
 	</div>
 </script>

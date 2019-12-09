@@ -222,7 +222,6 @@ angular.module('app.settings').controller('ExternalManagementCtrl', function ($s
                     querymain: 'externalManagement',
                     queryname: 'SelectMaxCompy'
                 }).then(function (res){
-
                     RestfulApi.InsertMSSQLData({
                         insertname: 'Insert',
                         table: 8,

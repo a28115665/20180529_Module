@@ -97,7 +97,7 @@ angular.module('app')
 	    // console.log(dataSrc);
 	    var deferred = $q.defer();
 
-	    Resource.LOGIN.get(dataSrc,
+	    Resource.LOGIN.insert(dataSrc,
 	    	function (pSResponse){
 				deferred.resolve(pSResponse);
 			},
@@ -111,7 +111,7 @@ angular.module('app')
 	this.Logout = function () {
 	    var deferred = $q.defer();
 	    
-	    Resource.LOGOUT.get({},
+	    Resource.LOGOUT.insert({},
 	    	function (pSResponse){
 				deferred.resolve(pSResponse);
 			},
@@ -319,6 +319,21 @@ angular.module('app')
 	    return deferred.promise
 	},
 
+	this.ChangeONature = function (dataSrc) {
+	    // console.log(dataSrc);
+	    var deferred = $q.defer();
+
+	    Resource.CHANGEONATURE.get(dataSrc,
+	    	function (pSResponse){
+				deferred.resolve(pSResponse);
+			},
+	    	function (pFResponse){
+	    		deferred.reject(pFResponse.data);
+	    	});
+
+	    return deferred.promise
+	},
+
 	this.ComposeMenu = function (dataSrc) {
 	    // console.log(dataSrc);
 	    var deferred = $q.defer();
@@ -333,4 +348,43 @@ angular.module('app')
 
 	    return deferred.promise
 	}
+})
+.service('SocketApi', function ($rootScope, APP_CONFIG, $location){
+
+    var socket = null;
+
+    function listenerExists(eventName) {
+        return socket.hasOwnProperty("$events") && socket.$events.hasOwnProperty(eventName);
+    }
+
+	this.Connect = function () {
+        socket = io.connect($location.host() + ':' + APP_CONFIG.socketPort);
+    },
+    this.Connected = function () {
+        return socket != null;
+    },
+    this.On = function (eventName, callback) {
+        if (!listenerExists(eventName)) {
+            socket.on(eventName, function () {
+                var args = arguments;
+                $rootScope.$apply(function () {
+                    callback.apply(socket, args);
+                });
+            });
+        }
+    },
+    this.Emit = function (eventName, data, callback) {
+        socket.emit(eventName, data, function () {
+            var args = arguments;
+            $rootScope.$apply(function () {
+                if (callback) {
+                    callback.apply(socket, args);
+                }
+            });
+        })
+    },
+    this.Disconnect = function(){
+        socket.disconnect();
+    }
+
 });
