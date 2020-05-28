@@ -484,7 +484,7 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
                     } 
                 },
                 { name: 'IL_TAX2'       , displayName: '稅則', width: 100, headerCellClass: 'text-primary' },
-                { name: 'ChangeNature'  , displayName: '改單', width: 50, enableCellEdit: false, enableSorting:false, cellTemplate: $templateCache.get('accessibilityToChangeNature'), cellClass: 'cell-class-no-style' },
+                // { name: 'ChangeNature'  , displayName: '改單', width: 50, enableCellEdit: false, enableSorting:false, cellTemplate: $templateCache.get('accessibilityToChangeNature'), cellClass: 'cell-class-no-style' },
                 { name: 'IL_CTN'        , displayName: '件數', width: 50, headerCellClass: 'text-primary' },
                 { name: 'IL_PLACE'      , displayName: '產地', width: 50, enableCellEdit: false },
                 { name: 'IL_NEWPLACE'   , displayName: '新產地', width: 70, headerCellClass: 'text-primary' },
@@ -1488,27 +1488,28 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
     function CalculationFinalCost(rowEntity, colDef, newValue, oldValue){
         
         // 一律為大寫
-        if(colDef.name == 'O_IL_G1') {
+        if(colDef.name == 'IL_G1') {
             try {
-                rowEntity["O_IL_G1"] = newValue.toUpperCase();
+                rowEntity["IL_G1"] = newValue.toUpperCase();
+                G1ForY(rowEntity);
             }
             catch (e) {
                 console.log(e);
             }
         }
 
-        try {
-            if(newValue.toUpperCase() == "Y"){
-                G1ForY(rowEntity)
-                // rowEntity.IL_WEIGHT_NEW = rowEntity.IL_WEIGHT;
-                // rowEntity.IL_NEWPCS = rowEntity.IL_PCS;
-                // rowEntity.IL_UNIVALENT_NEW = rowEntity.IL_UNIVALENT;
-                // rowEntity.IL_NEWSENDNAME = rowEntity.IL_SENDNAME;
-                // rowEntity.IL_FINALCOST = null;
-            }
-        } catch (e) {
-            console.log(e);
-        }
+        // try {
+        //     if(rowEntity["IL_G1"] == "Y"){
+        //         G1ForY(rowEntity)
+        //         // rowEntity.IL_WEIGHT_NEW = rowEntity.IL_WEIGHT;
+        //         // rowEntity.IL_NEWPCS = rowEntity.IL_PCS;
+        //         // rowEntity.IL_UNIVALENT_NEW = rowEntity.IL_UNIVALENT;
+        //         // rowEntity.IL_NEWSENDNAME = rowEntity.IL_SENDNAME;
+        //         // rowEntity.IL_FINALCOST = null;
+        //     }
+        // } catch (e) {
+        //     console.log(e);
+        // }
 
         if(colDef.name == 'IL_GETNAME_NEW'){
             var _temp = encodeURI(rowEntity.IL_GETNAME_NEW),
@@ -1615,11 +1616,17 @@ angular.module('app.selfwork').controller('Job001Ctrl', function ($scope, $state
      * @param {[type]} rowEntity [description]
      */
     function G1ForY (rowEntity){
-        rowEntity.IL_WEIGHT_NEW = rowEntity.IL_WEIGHT;
-        rowEntity.IL_NEWPCS = rowEntity.IL_PCS;
-        rowEntity.IL_UNIVALENT_NEW = rowEntity.IL_UNIVALENT;
-        rowEntity.IL_NEWSENDNAME = rowEntity.IL_SENDNAME;
-        rowEntity.IL_FINALCOST = null;
+        try{
+            if(rowEntity["IL_G1"] == "Y"){
+                rowEntity.IL_WEIGHT_NEW = rowEntity.IL_WEIGHT;
+                rowEntity.IL_NEWPCS = rowEntity.IL_PCS;
+                rowEntity.IL_UNIVALENT_NEW = rowEntity.IL_UNIVALENT;
+                rowEntity.IL_NEWSENDNAME = rowEntity.IL_SENDNAME;
+                rowEntity.IL_FINALCOST = null;
+            }
+        } catch (e) {
+            console.log(e);
+        }
     }
 
     /**
